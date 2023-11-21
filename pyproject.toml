@@ -9,8 +9,19 @@ readme = "README.md"
 python = "^3.10"
 fastapi = "^0.104.1"
 uvicorn = {extras = ["standard"], version = "^0.24.0.post1"}
+poethepoet = "^0.24.4"
 
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.7.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+type = "mypy main.py api/"
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
