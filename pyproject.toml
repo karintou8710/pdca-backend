@@ -10,6 +10,8 @@ python = "^3.10"
 fastapi = "^0.104.1"
 uvicorn = {extras = ["standard"], version = "^0.24.0.post1"}
 poethepoet = "^0.24.4"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.23"}
+asyncpg = "^0.29.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -39,3 +41,4 @@ ignore_missing_imports = true
 [tool.flake8]
 exclude = [".venv", ".git", "__pycache__",]
 max-complexity = 10
+max-line-length = 88
