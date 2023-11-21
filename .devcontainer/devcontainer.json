@@ -11,6 +11,7 @@
         "ms-python.black-formatter",
         "ms-python.isort",
         "ms-python.mypy-type-checker",
+        "ms-python.flake8",
         "donjayamanne.python-extension-pack"
       ]
     }
