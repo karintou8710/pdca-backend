@@ -25,5 +25,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+      TZ: Asia/Tokyo
+      PGTZ: Asia/Tokyo
 volumes:
   db_store:
