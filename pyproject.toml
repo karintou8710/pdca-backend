@@ -37,6 +37,7 @@ type = "mypy main.py api/"
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
+plugins = "sqlalchemy.ext.mypy.plugin"
 
 [tool.flake8]
 exclude = [".venv", ".git", "__pycache__",]
