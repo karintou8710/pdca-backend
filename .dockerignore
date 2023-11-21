@@ -1,0 +1,5 @@
+.devcontainer
+.venv
+.mypy_cache
+.vscode
+.env
