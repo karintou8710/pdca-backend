@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.cruds import user as user_cruds
@@ -27,6 +27,11 @@ async def delete_user() -> None:
 async def sign_up(
     sign_up_body: user_schema.SignUp, db: AsyncSession = Depends(get_db)
 ) -> user_schema.User:
+    async with db.begin():
+        user = await user_cruds.fetch_user_by_name(db, sign_up_body.name)
+        if user is not None:
+            raise HTTPException(status_code=400, detail="username is already used")
+
     async with db.begin():
         user = await user_cruds.create_user(db, sign_up_body)
         response = user_schema.User.model_validate(user)
