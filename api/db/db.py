@@ -2,7 +2,7 @@ from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-ASYNC_DB_URL = "postgresql://db:5432/postgres?user=postgres&password=postgres"
+ASYNC_DB_URL = "postgresql+asyncpg://db:5432/postgres?user=postgres&password=postgres"
 
 async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
 async_session = async_sessionmaker(
