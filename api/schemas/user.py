@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class User(BaseModel):
@@ -21,14 +21,14 @@ class LoginResponse(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    name: str
+    name: str = Field(min_length=1)
 
 
 class Login(BaseModel):
-    name: str
-    password: str
+    name: str = Field(min_length=1)
+    password: str = Field(min_length=1)
 
 
 class SignUp(BaseModel):
-    name: str
-    password: str
+    name: str = Field(min_length=1)
+    password: str = Field(min_length=1)
