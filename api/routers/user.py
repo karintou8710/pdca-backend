@@ -4,15 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.cruds import user as user_cruds
 from api.db.db import get_db
 from api.errors import LoginValidationException, UserAlreadyExistException
-from api.oauth2 import authenticate_user, create_access_token
+from api.models.user import User as UserModel
+from api.oauth2 import authenticate_user, create_access_token, get_current_user
 from api.schemas import user as user_schema
 
 router = APIRouter()
 
 
 @router.get("/users/me", response_model=user_schema.User)
-async def read_me() -> user_schema.User:
-    return user_schema.User(id="1", name="test_user")
+async def read_me(
+    current_user: UserModel = Depends(get_current_user),
+) -> user_schema.User:
+    return user_schema.User.model_validate(current_user)
 
 
 @router.put("/users/{user_id}", response_model=user_schema.User)
