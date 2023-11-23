@@ -12,4 +12,6 @@ async_session = async_sessionmaker(
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
-        yield session
+        # ルーターのハンドラー単位でトランザクションにする
+        async with session.begin():
+            yield session
