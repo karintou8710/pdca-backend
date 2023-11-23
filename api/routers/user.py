@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.cruds import user as user_cruds
 from api.db.db import get_db
 from api.errors import UserAlreadyExistException
+from api.oauth2 import create_access_token
 from api.schemas import user as user_schema
 
 router = APIRouter()
@@ -24,10 +25,10 @@ async def delete_user() -> None:
     pass
 
 
-@router.post("/signup", response_model=user_schema.User)
+@router.post("/signup", response_model=user_schema.SignUpResponse)
 async def sign_up(
     sign_up_body: user_schema.SignUp, db: AsyncSession = Depends(get_db)
-) -> user_schema.User:
+) -> user_schema.SignUpResponse:
     async with db.begin():
         user = await user_cruds.fetch_user_by_name(db, sign_up_body.name)
         if user is not None:
@@ -35,7 +36,13 @@ async def sign_up(
 
     async with db.begin():
         user = await user_cruds.create_user(db, sign_up_body)
-        response = user_schema.User.model_validate(user)
+        jwtData = {"sub": user.id, "name": user.name}
+        access_token = create_access_token(data=jwtData)
+        response = user_schema.SignUpResponse(
+            user=user_schema.User.model_validate(user),
+            access_token=access_token,
+            token_type="bearer",
+        )
     return response
 
 

@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta
-from typing import Annotated, Any
+from typing import Any
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.cruds import user as user_cruds
+from api.db.db import get_db
+from api.errors import CredentialsException
 from api.models.user import User as UserModel
 from api.settings import SECRET_KEY
 from api.types.oauth2 import JwtUser
@@ -47,11 +49,23 @@ def create_access_token(
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt: str = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> JwtUser:
-    return {"name": "test"}
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
+) -> UserModel:
+    try:
+        payload: JwtUser = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str | None = payload.get("sub")
+        if user_id is None:
+            raise CredentialsException()
+    except JWTError:
+        raise CredentialsException()
+    user = await user_cruds.fetch_user_by_name(db, payload["name"])
+    if user is None:
+        raise CredentialsException()
+    return user
