@@ -35,6 +35,13 @@ class CredentialsException(BaseException):
     headers = {"WWW-Authenticate": "Bearer"}
 
 
+class LoginValidationException(BaseException):
+    code = "login_validation"
+    message = "incorrect username or password"
+    status_code = status.HTTP_401_UNAUTHORIZED
+    headers = {"WWW-Authenticate": "Bearer"}
+
+
 def register_exception(app: FastAPI) -> None:
     app.exception_handlers
 
@@ -45,5 +52,17 @@ def register_exception(app: FastAPI) -> None:
     @app.exception_handler(UserAlreadyExistException)
     async def user_already_exist_exception(
         request: Request, ext: UserAlreadyExistException
+    ) -> JSONResponse:
+        return ext.to_response()
+
+    @app.exception_handler(CredentialsException)
+    async def credentials_exception(
+        request: Request, ext: CredentialsException
+    ) -> JSONResponse:
+        return ext.to_response()
+
+    @app.exception_handler(LoginValidationException)
+    async def login_validation_exception(
+        request: Request, ext: LoginValidationException
     ) -> JSONResponse:
         return ext.to_response()

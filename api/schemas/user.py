@@ -14,6 +14,12 @@ class SignUpResponse(BaseModel):
     token_type: str
 
 
+class LoginResponse(BaseModel):
+    user: User
+    access_token: str
+    token_type: str
+
+
 class UserUpdate(BaseModel):
     name: str
 

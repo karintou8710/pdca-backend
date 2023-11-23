@@ -14,7 +14,7 @@ from api.models.user import User as UserModel
 from api.settings import SECRET_KEY
 from api.types.oauth2 import JwtUser
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
