@@ -3,9 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.cruds import user as user_cruds
 from api.db.db import get_db
+from api.dependencies import get_current_user
 from api.errors import LoginValidationException, UserAlreadyExistException
 from api.models.user import User as UserModel
-from api.oauth2 import authenticate_user, create_access_token, get_current_user
+from api.oauth2 import authenticate_user, create_access_token
 from api.schemas import user as user_schema
 
 router = APIRouter()
