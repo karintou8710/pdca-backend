@@ -15,13 +15,13 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
+from api.cruds import user as user_cruds
 from api.db.db import get_db
 from api.db.migrate_base import Base
-from api.dependencies import get_current_user
-from api.models.user import User as UserModel
+from api.oauth2 import create_access_token
+from api.schemas import user as user_schema
 from main import app
-
-from .data import TEST_USER1
+from tests.types.common import SignUpUserInfo
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "")
 if TEST_DATABASE_URL == "":
@@ -29,6 +29,9 @@ if TEST_DATABASE_URL == "":
 TEST_DATABASE_SYNC_URL = (
     urlparse(TEST_DATABASE_URL)._replace(scheme="postgresql").geturl()
 )
+
+engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+sessionLocal = async_sessionmaker(autocommit=False, autoflush=True, bind=engine)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -45,9 +48,6 @@ def init_detabase() -> Generator[None, None, None]:
 
 @pytest_asyncio.fixture(scope="function")
 async def async_client() -> AsyncGenerator[AsyncClient, None]:
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-    sessionLocal = async_sessionmaker(autocommit=False, autoflush=True, bind=engine)
-
     # テーブル作り直し
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -58,7 +58,6 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
             yield session
 
     app.dependency_overrides[get_db] = get_test_db
-    app.dependency_overrides[get_current_user] = get_current_test_user
 
     async with AsyncClient(app=app, base_url="http://localhost:3000") as client:
         yield client
@@ -66,5 +65,23 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
     await engine.dispose()
 
 
-def get_current_test_user() -> UserModel:
-    return TEST_USER1
+@pytest_asyncio.fixture(scope="function")
+async def test_db() -> AsyncGenerator[AsyncSession, None]:
+    async with sessionLocal() as session:
+        yield session
+
+
+@pytest_asyncio.fixture(scope="function")
+async def user_signup(test_db: AsyncSession) -> AsyncGenerator[SignUpUserInfo, None]:
+    async with test_db.begin():
+        sign_up_body = user_schema.SignUp(name="user1", password="password")
+        user = await user_cruds.create_user(test_db, sign_up_body)
+        user_id = user.id
+        jwtData = {"sub": user_id, "name": user.name}
+        access_token = create_access_token(data=jwtData)
+        userInfo: SignUpUserInfo = {
+            "user": {"id": user.id, "name": user.name, "password": user.password},
+            "accessToken": access_token,
+        }
+
+    yield userInfo

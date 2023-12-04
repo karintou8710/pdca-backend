@@ -18,8 +18,15 @@ class BaseException(Exception):
 
 class NoUserException(BaseException):
     code = "no_user"
-    message = "user not found"
+    message = "user not found."
     status_code = status.HTTP_400_BAD_REQUEST
+
+
+class NoBearerHeaderException(BaseException):
+    code = "not_authenticated"
+    message = "not authenticated."
+    status_code = status.HTTP_401_UNAUTHORIZED
+    headers = {"WWW-Authenticate": "Bearer"}
 
 
 class UserAlreadyExistException(BaseException):
@@ -30,21 +37,21 @@ class UserAlreadyExistException(BaseException):
 
 class CredentialsException(BaseException):
     code = "credentials_exception"
-    message = "could not validate credentials"
+    message = "could not validate credentials."
     status_code = status.HTTP_401_UNAUTHORIZED
     headers = {"WWW-Authenticate": "Bearer"}
 
 
 class ExpiredSignatureException(BaseException):
     code = "expired_signature"
-    message = "jwt expired"
+    message = "jwt expired."
     status_code = status.HTTP_401_UNAUTHORIZED
     headers = {"WWW-Authenticate": "Bearer"}
 
 
 class LoginValidationException(BaseException):
     code = "login_validation"
-    message = "incorrect username or password"
+    message = "incorrect username or password."
     status_code = status.HTTP_401_UNAUTHORIZED
     headers = {"WWW-Authenticate": "Bearer"}
 
@@ -59,6 +66,12 @@ def register_exception(app: FastAPI) -> None:
     @app.exception_handler(UserAlreadyExistException)
     async def user_already_exist_exception(
         request: Request, ext: UserAlreadyExistException
+    ) -> JSONResponse:
+        return ext.to_response()
+
+    @app.exception_handler(NoBearerHeaderException)
+    async def nobearer_header_exception(
+        request: Request, ext: NoBearerHeaderException
     ) -> JSONResponse:
         return ext.to_response()
 
