@@ -35,6 +35,13 @@ class CredentialsException(BaseException):
     headers = {"WWW-Authenticate": "Bearer"}
 
 
+class ExpiredSignatureException(BaseException):
+    code = "expired_signature"
+    message = "jwt expired"
+    status_code = status.HTTP_401_UNAUTHORIZED
+    headers = {"WWW-Authenticate": "Bearer"}
+
+
 class LoginValidationException(BaseException):
     code = "login_validation"
     message = "incorrect username or password"
@@ -58,6 +65,12 @@ def register_exception(app: FastAPI) -> None:
     @app.exception_handler(CredentialsException)
     async def credentials_exception(
         request: Request, ext: CredentialsException
+    ) -> JSONResponse:
+        return ext.to_response()
+
+    @app.exception_handler(ExpiredSignatureException)
+    async def expired_signature_exception(
+        request: Request, ext: ExpiredSignatureException
     ) -> JSONResponse:
         return ext.to_response()
 

@@ -3,13 +3,13 @@ from typing import Any
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.cruds import user as user_cruds
 from api.db.db import get_db
-from api.errors import CredentialsException
+from api.errors import CredentialsException, ExpiredSignatureException
 from api.models.user import User as UserModel
 from api.settings import SECRET_KEY
 from api.types.oauth2 import JwtUser
@@ -63,6 +63,8 @@ async def get_current_user(
         user_id: str | None = payload.get("sub")
         if user_id is None:
             raise CredentialsException()
+    except ExpiredSignatureError:
+        raise ExpiredSignatureException()
     except JWTError:
         raise CredentialsException()
     user = await user_cruds.fetch_user_by_name(db, payload["name"])
