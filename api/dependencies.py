@@ -34,7 +34,7 @@ async def get_current_user(
         raise ExpiredSignatureException()
     except JWTError:
         raise CredentialsException()
-    user = await user_cruds.fetch_user_by_name(db, payload["name"])
+    user = await user_cruds.fetch_user_by_id(db, payload["sub"])
     if user is None:
         raise CredentialsException()
     return user

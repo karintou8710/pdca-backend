@@ -6,6 +6,12 @@ from api.oauth2 import get_password_hash
 from api.schemas.user import SignUp
 
 
+async def fetch_user_by_id(db: AsyncSession, id: str) -> UserModel | None:
+    stmt = select(UserModel).where(UserModel.id == id)
+    user = (await db.scalars(stmt)).first()
+    return user
+
+
 async def fetch_user_by_name(db: AsyncSession, name: str) -> UserModel | None:
     stmt = select(UserModel).where(UserModel.name == name)
     # nameはユニークなので高々一つ
