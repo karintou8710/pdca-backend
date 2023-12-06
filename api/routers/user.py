@@ -19,9 +19,16 @@ async def read_me(
     return user_schema.User.model_validate(current_user)
 
 
-@router.put("/users/{user_id}", response_model=user_schema.User)
-async def update_user(update_body: user_schema.UserUpdate) -> user_schema.User:
-    return user_schema.User(id="1", name="test_user")
+@router.put("/users/me", response_model=user_schema.User)
+async def update_user(
+    update_body: user_schema.UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user),
+) -> user_schema.User:
+    user = await user_cruds.update_user(db, update_body, current_user.id)
+    response = user_schema.User.model_validate(user)
+
+    return response
 
 
 @router.delete("/users/{user_id}")
