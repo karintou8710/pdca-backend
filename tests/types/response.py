@@ -6,6 +6,12 @@ class UserResponse(TypedDict):
     name: str
 
 
+class SignUpResponse(TypedDict):
+    user: UserResponse
+    access_token: str
+    token_type: str
+
+
 class ErrorResponse(TypedDict):
     code: str
     message: str

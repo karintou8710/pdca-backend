@@ -36,6 +36,13 @@ class UserAlreadyExistException(BaseException):
     status_code = status.HTTP_400_BAD_REQUEST
 
 
+class LoginValidationException(BaseException):
+    code = "login_validation"
+    message = "incorrect username or password."
+    status_code = status.HTTP_400_BAD_REQUEST
+    headers = {"WWW-Authenticate": "Bearer"}
+
+
 # 401
 class NoBearerHeaderException(BaseException):
     code = "not_authenticated"
@@ -54,13 +61,6 @@ class CredentialsException(BaseException):
 class ExpiredSignatureException(BaseException):
     code = "expired_signature"
     message = "jwt expired."
-    status_code = status.HTTP_401_UNAUTHORIZED
-    headers = {"WWW-Authenticate": "Bearer"}
-
-
-class LoginValidationException(BaseException):
-    code = "login_validation"
-    message = "incorrect username or password."
     status_code = status.HTTP_401_UNAUTHORIZED
     headers = {"WWW-Authenticate": "Bearer"}
 

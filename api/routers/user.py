@@ -39,7 +39,11 @@ async def delete_user(
     await user_cruds.delete_user(db, current_user.id)
 
 
-@router.post("/signup", response_model=user_schema.SignUpResponse)
+@router.post(
+    "/signup",
+    response_model=user_schema.SignUpResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def sign_up(
     sign_up_body: user_schema.SignUp, db: AsyncSession = Depends(get_db)
 ) -> user_schema.SignUpResponse:
