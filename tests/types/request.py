@@ -8,3 +8,8 @@ class UpdateUserBody(TypedDict):
 class SignUpBody(TypedDict):
     name: str
     password: str
+
+
+class LoginBody(TypedDict):
+    name: str
+    password: str

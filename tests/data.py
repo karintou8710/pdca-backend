@@ -30,3 +30,8 @@ VALIDATION_ERROR_RESPONSE: ErrorResponse = {
     "code": "validation_error",
     "message": "failed to validation.",
 }
+
+LOGIN_VALIDATION_ERROR_RESPONSE: ErrorResponse = {
+    "code": "login_validation",
+    "message": "incorrect username or password.",
+}
