@@ -17,6 +17,7 @@ class BaseException(Exception):
         )
 
 
+# 400
 class NoUserException(BaseException):
     code = "no_user"
     message = "user not found."
@@ -29,17 +30,18 @@ class RequestValidationException(BaseException):
     status_code = status.HTTP_400_BAD_REQUEST
 
 
+class UserAlreadyExistException(BaseException):
+    code = "user_already_exist"
+    message = "user already exist. you can't use this name."
+    status_code = status.HTTP_400_BAD_REQUEST
+
+
+# 401
 class NoBearerHeaderException(BaseException):
     code = "not_authenticated"
     message = "not authenticated."
     status_code = status.HTTP_401_UNAUTHORIZED
     headers = {"WWW-Authenticate": "Bearer"}
-
-
-class UserAlreadyExistException(BaseException):
-    code = "user_already_exist"
-    message = "user already exist. you can't use this name."
-    status_code = status.HTTP_400_BAD_REQUEST
 
 
 class CredentialsException(BaseException):
