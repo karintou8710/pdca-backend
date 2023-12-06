@@ -24,6 +24,7 @@ async def fetch_user_by_name(db: AsyncSession, name: str) -> UserModel | None:
 
 async def create_user(db: AsyncSession, sign_up: SignUp) -> UserModel:
     user = UserModel(name=sign_up.name, password=get_password_hash(sign_up.password))
+    db.add(user)
 
     await db.flush()
     await db.refresh(user)
@@ -39,8 +40,18 @@ async def update_user(
     same_name_user = await fetch_user_by_name(db, user_update.name)
     if same_name_user is not None and user_id != same_name_user.id:
         raise UserAlreadyExistException()
+
     user.name = user_update.name
     user.updated_at = datetime.now()
     await db.flush()
     await db.refresh(user)
     return user
+
+
+async def delete_user(db: AsyncSession, user_id: str) -> None:
+    user = await fetch_user_by_id(db, user_id)
+    if user is None:
+        raise NoUserException()
+    await db.delete(user)
+
+    await db.flush()

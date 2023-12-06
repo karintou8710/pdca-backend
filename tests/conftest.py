@@ -53,11 +53,12 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-    async def get_test_db() -> AsyncGenerator[AsyncSession, None]:
+    async def test_db_with_transaction() -> AsyncGenerator[AsyncSession, None]:
         async with sessionLocal() as session:
-            yield session
+            async with session.begin():
+                yield session
 
-    app.dependency_overrides[get_db] = get_test_db
+    app.dependency_overrides[get_db] = test_db_with_transaction
 
     async with AsyncClient(app=app, base_url="http://localhost:3000") as client:
         yield client

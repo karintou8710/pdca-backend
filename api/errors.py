@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 
@@ -19,6 +20,12 @@ class BaseException(Exception):
 class NoUserException(BaseException):
     code = "no_user"
     message = "user not found."
+    status_code = status.HTTP_400_BAD_REQUEST
+
+
+class RequestValidationException(BaseException):
+    code = "validation_error"
+    message = "failed to validation."
     status_code = status.HTTP_400_BAD_REQUEST
 
 
@@ -92,3 +99,11 @@ def register_exception(app: FastAPI) -> None:
         request: Request, ext: LoginValidationException
     ) -> JSONResponse:
         return ext.to_response()
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        # TODO: 詳細メッセージのスキーマを考える
+        err = RequestValidationException()
+        return err.to_response()
