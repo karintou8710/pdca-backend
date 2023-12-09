@@ -21,7 +21,7 @@ class BaseException(Exception):
 class NoUserException(BaseException):
     code = "no_user"
     message = "user not found."
-    status_code = status.HTTP_400_BAD_REQUEST
+    status_code = status.HTTP_404_NOT_FOUND
 
 
 class RequestValidationException(BaseException):
