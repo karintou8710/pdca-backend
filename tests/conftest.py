@@ -86,3 +86,19 @@ async def user_signup(test_db: AsyncSession) -> AsyncGenerator[SignUpUserInfo, N
         }
 
     yield userInfo
+
+
+@pytest_asyncio.fixture(scope="function")
+async def user_signup2(test_db: AsyncSession) -> AsyncGenerator[SignUpUserInfo, None]:
+    async with test_db.begin():
+        sign_up_body = user_schema.SignUp(name="user2", password="password")
+        user = await user_cruds.create_user(test_db, sign_up_body)
+        user_id = user.id
+        jwtData = {"sub": user_id, "name": user.name}
+        access_token = create_access_token(data=jwtData)
+        userInfo: SignUpUserInfo = {
+            "user": {"id": user.id, "name": user.name, "password": user.password},
+            "accessToken": access_token,
+        }
+
+    yield userInfo

@@ -6,6 +6,12 @@ class UserResponse(TypedDict):
     name: str
 
 
+class TaskResponse(TypedDict):
+    id: str
+    user_id: str
+    title: str
+
+
 class SignUpResponse(TypedDict):
     user: UserResponse
     access_token: str

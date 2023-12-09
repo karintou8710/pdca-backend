@@ -7,3 +7,7 @@ class Task(BaseModel):
     id: str
     user_id: str
     title: str
+
+
+class CreateTask(BaseModel):
+    title: str
