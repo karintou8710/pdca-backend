@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,6 +37,7 @@ async def update_task(
     if task is None:
         raise NoTaskException()
     task.title = param.title
+    task.updated_at = datetime.now()
     await db.flush()
     await db.refresh(task)
     return task
