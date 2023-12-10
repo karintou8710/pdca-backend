@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Task(BaseModel):
@@ -10,4 +10,4 @@ class Task(BaseModel):
 
 
 class CreateTask(BaseModel):
-    title: str
+    title: str = Field(min_length=1)

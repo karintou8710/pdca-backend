@@ -12,6 +12,11 @@ async def fetch_tasks_by_uid(db: AsyncSession, user_id: str) -> list[TaskModel]:
     return tasks
 
 
+async def fetch_tasks_by_id(db: AsyncSession, id: str) -> TaskModel | None:
+    task = await db.get(TaskModel, id)
+    return task
+
+
 async def create_task(
     db: AsyncSession, user_id: str, param: task_schema.CreateTask
 ) -> TaskModel:
