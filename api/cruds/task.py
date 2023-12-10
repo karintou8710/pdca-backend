@@ -38,3 +38,11 @@ async def update_task(
     await db.flush()
     await db.refresh(task)
     return task
+
+
+async def delete_task(db: AsyncSession, id: str) -> None:
+    task = await fetch_tasks_by_id(db, id)
+    if task is None:
+        raise NoTaskException()
+    await db.delete(task)
+    await db.flush()
