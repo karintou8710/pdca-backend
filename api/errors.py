@@ -18,8 +18,6 @@ class BaseException(Exception):
 
 
 # 400
-
-
 class RequestValidationException(BaseException):
     code = "validation_error"
     message = "failed to validation."
@@ -61,6 +59,13 @@ class ExpiredSignatureException(BaseException):
     headers = {"WWW-Authenticate": "Bearer"}
 
 
+# 403
+class ForbiddenException(BaseException):
+    code = "forbidden"
+    message = "access forbidden."
+    status_code = status.HTTP_403_FORBIDDEN
+
+
 # 404
 class NoUserException(BaseException):
     code = "no_user"
@@ -77,19 +82,29 @@ class NoTaskException(BaseException):
 def register_exception(app: FastAPI) -> None:
     app.exception_handlers
 
-    @app.exception_handler(NoUserException)
-    async def no_user_exception(request: Request, ext: NoUserException) -> JSONResponse:
-        return ext.to_response()
-
-    @app.exception_handler(NoTaskException)
-    async def no_task_exception(request: Request, ext: NoTaskException) -> JSONResponse:
-        return ext.to_response()
+    # 400
 
     @app.exception_handler(UserAlreadyExistException)
     async def user_already_exist_exception(
         request: Request, ext: UserAlreadyExistException
     ) -> JSONResponse:
         return ext.to_response()
+
+    @app.exception_handler(LoginValidationException)
+    async def login_validation_exception(
+        request: Request, ext: LoginValidationException
+    ) -> JSONResponse:
+        return ext.to_response()
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        # TODO: 詳細メッセージのスキーマを考える
+        err = RequestValidationException()
+        return err.to_response()
+
+    # 401
 
     @app.exception_handler(NoBearerHeaderException)
     async def nobearer_header_exception(
@@ -109,16 +124,18 @@ def register_exception(app: FastAPI) -> None:
     ) -> JSONResponse:
         return ext.to_response()
 
-    @app.exception_handler(LoginValidationException)
-    async def login_validation_exception(
-        request: Request, ext: LoginValidationException
+    # 403
+    @app.exception_handler(ForbiddenException)
+    async def forbidden_exception(
+        request: Request, ext: ForbiddenException
     ) -> JSONResponse:
         return ext.to_response()
 
-    @app.exception_handler(RequestValidationError)
-    async def validation_exception(
-        request: Request, exc: RequestValidationError
-    ) -> JSONResponse:
-        # TODO: 詳細メッセージのスキーマを考える
-        err = RequestValidationException()
-        return err.to_response()
+    # 404
+    @app.exception_handler(NoUserException)
+    async def no_user_exception(request: Request, ext: NoUserException) -> JSONResponse:
+        return ext.to_response()
+
+    @app.exception_handler(NoTaskException)
+    async def no_task_exception(request: Request, ext: NoTaskException) -> JSONResponse:
+        return ext.to_response()

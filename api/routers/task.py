@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.cruds import task as task_crud
 from api.db.db import get_db
 from api.dependencies import get_current_user
-from api.errors import NoTaskException
+from api.errors import ForbiddenException, NoTaskException
 from api.models.user import User as UserModel
 from api.schemas import task as task_schema
 
@@ -44,6 +44,10 @@ async def update_task(
     existed_task = await task_crud.fetch_tasks_by_id(db, task_id)
     if existed_task is None:
         raise NoTaskException()
+
+    # 権限チェック
+    if existed_task.user_id != current_user.id:
+        raise ForbiddenException()
 
     task = await task_crud.update_task(db, task_id, update_body)
     return task_schema.Task.model_validate(task)

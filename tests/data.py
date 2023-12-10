@@ -21,6 +21,11 @@ NO_USER_ERROR_RESPONSE: ErrorResponse = {
     "message": "user not found.",
 }
 
+NO_TASK_ERROR_RESPONSE: ErrorResponse = {
+    "code": "no_task",
+    "message": "task not found.",
+}
+
 CREDENTIAL_ERROR_RESPONSE: ErrorResponse = {
     "code": "credentials_exception",
     "message": "could not validate credentials.",
@@ -34,4 +39,9 @@ VALIDATION_ERROR_RESPONSE: ErrorResponse = {
 LOGIN_VALIDATION_ERROR_RESPONSE: ErrorResponse = {
     "code": "login_validation",
     "message": "incorrect username or password.",
+}
+
+FORBIDDEN_ERROR_RESPONSE: ErrorResponse = {
+    "code": "forbidden",
+    "message": "access forbidden.",
 }

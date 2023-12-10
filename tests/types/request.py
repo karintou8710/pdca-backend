@@ -19,3 +19,7 @@ class LoginBody(TypedDict):
 # task
 class CreateTask(TypedDict):
     title: str
+
+
+class UpdateTask(TypedDict):
+    title: str
