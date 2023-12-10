@@ -18,10 +18,6 @@ class BaseException(Exception):
 
 
 # 400
-class NoUserException(BaseException):
-    code = "no_user"
-    message = "user not found."
-    status_code = status.HTTP_404_NOT_FOUND
 
 
 class RequestValidationException(BaseException):
@@ -65,11 +61,28 @@ class ExpiredSignatureException(BaseException):
     headers = {"WWW-Authenticate": "Bearer"}
 
 
+# 404
+class NoUserException(BaseException):
+    code = "no_user"
+    message = "user not found."
+    status_code = status.HTTP_404_NOT_FOUND
+
+
+class NoTaskException(BaseException):
+    code = "no_task"
+    message = "task not found."
+    status_code = status.HTTP_404_NOT_FOUND
+
+
 def register_exception(app: FastAPI) -> None:
     app.exception_handlers
 
     @app.exception_handler(NoUserException)
     async def no_user_exception(request: Request, ext: NoUserException) -> JSONResponse:
+        return ext.to_response()
+
+    @app.exception_handler(NoTaskException)
+    async def no_task_exception(request: Request, ext: NoTaskException) -> JSONResponse:
         return ext.to_response()
 
     @app.exception_handler(UserAlreadyExistException)

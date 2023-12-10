@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.errors import NoTaskException
 from api.models.task import Task as TaskModel
 from api.schemas import task as task_schema
 
@@ -22,6 +23,18 @@ async def create_task(
 ) -> TaskModel:
     task = TaskModel(user_id=user_id, title=param.title)
     db.add(task)
+    await db.flush()
+    await db.refresh(task)
+    return task
+
+
+async def update_task(
+    db: AsyncSession, id: str, param: task_schema.UpdateTask
+) -> TaskModel:
+    task = await fetch_tasks_by_id(db, id)
+    if task is None:
+        raise NoTaskException()
+    task.title = param.title
     await db.flush()
     await db.refresh(task)
     return task

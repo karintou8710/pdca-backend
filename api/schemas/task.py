@@ -11,3 +11,7 @@ class Task(BaseModel):
 
 class CreateTask(BaseModel):
     title: str = Field(min_length=1)
+
+
+class UpdateTask(BaseModel):
+    title: str = Field(min_length=1)
