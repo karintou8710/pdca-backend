@@ -71,3 +71,20 @@ async def delete_task(
         raise ForbiddenException()
 
     await task_crud.delete_task(db, task_id)
+
+
+@router.get("/tasks/{task_id}", response_model=task_schema.Task)
+async def read_task(
+    task_id: str,
+    current_user: UserModel = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> task_schema.Task:
+    task = await task_crud.fetch_tasks_by_id(db, task_id)
+    if task is None:
+        raise NoTaskException()
+
+    # 権限チェック
+    if task.user_id != current_user.id:
+        raise ForbiddenException()
+
+    return task_schema.Task.model_validate(task)
