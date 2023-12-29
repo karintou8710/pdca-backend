@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.db.base import Base
 
 if TYPE_CHECKING:
+    from api.models.pdca import Pdca
     from api.models.user import User
 
 
@@ -20,3 +21,4 @@ class Task(Base):
     title: Mapped[str] = mapped_column(String(200), nullable=False)
 
     user: Mapped["User"] = relationship(back_populates="tasks")
+    pdca: Mapped["Pdca"] = relationship(back_populates="task")
