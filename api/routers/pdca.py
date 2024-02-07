@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.cruds import pdca as pdca_cruds
+from api.cruds import task as task_cruds
 from api.db.db import get_db
 from api.dependencies import get_current_user
+from api.errors import ForbiddenException, NoTaskException
 from api.models.user import User as UserModel
+from api.permissions import is_own_task
 from api.schemas import pdca as pdca_schema
 
 router = APIRouter()
@@ -24,7 +28,15 @@ async def read_my_pdca_list(
     current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[pdca_schema.Pdca]:
-    return [pdca_sample]
+    task = await task_cruds.fetch_tasks_by_id(db, task_id)
+    if task is None:
+        raise NoTaskException()
+
+    if not await is_own_task(db, current_user.id, task_id):
+        raise ForbiddenException()
+
+    pdca_list = await pdca_cruds.fetch_pdca_list_by_task_id(db, task_id)
+    return [pdca_schema.Pdca.model_validate(pdca) for pdca in pdca_list]
 
 
 @router.post(
@@ -48,7 +60,7 @@ async def update_pdca(
     return pdca_sample
 
 
-@router.delete("/pdca/{pdca_id}")
+@router.delete("/pdca/{pdca_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_pdca(
     pdca_id: str,
     current_user: UserModel = Depends(get_current_user),
