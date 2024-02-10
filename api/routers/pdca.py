@@ -47,7 +47,16 @@ async def create_pdca(
     current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> pdca_schema.Pdca:
-    return pdca_sample
+    task = await task_cruds.fetch_tasks_by_id(db, create_body.task_id)
+    if task is None:
+        raise NoTaskException()
+
+    if not await is_own_task(db, current_user.id, create_body.task_id):
+        raise ForbiddenException()
+
+    pdca_model = await pdca_cruds.create_pdca(db, create_body)
+
+    return pdca_schema.Pdca.model_validate(pdca_model)
 
 
 @router.put("/pdca/{pdca_id}", response_model=pdca_schema.Pdca)
